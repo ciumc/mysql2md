@@ -1,81 +1,109 @@
-# Mysql to markdown
+# MySQL to Markdown 文档生成工具
 
-This is a simple tool to convert mysql database to markdown.
+[![Go Report Card](https://goreportcard.com/badge/github.com/jayecc/mysql2md)](https://goreportcard.com/report/github.com/jayecc/mysql2md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Install
+mysql2md 是一个简单易用的命令行工具，可以将 MySQL 数据库表结构导出为 Markdown 格式的文档，便于查看和分享数据库设计。
+
+## 功能特性
+
+- 🔄 将 MySQL 数据库表结构转换为 Markdown 格式
+- 📄 支持生成单个文件或多个文件
+- 🔧 可选择是否包含表的 DDL 语句
+- 📁 支持自定义输出目录
+- ⚡ 支持并发处理提高效率
+- 📊 显示表的基本信息、字段详情
+
+## 安装
+
+### 使用 Go 安装（推荐）
 
 ```bash
 go install github.com/jayecc/mysql2md@latest
 ```
 
-## Usage
+### 从源码构建
 
 ```bash
-$ ./mysql2md -h
-Usage of mysql2md:
-  -ddl                                                                                                                                            
-        generate ddl info (default false)                                                                                                         
-  -dir string                                                                                                                                     
-        directory to save the file (default "./output")                                                                                           
-  -dsn string                                                                                                                                     
-        database connection string (default "username:password@tcp(localhost:3306)/database?charset=utf8mb4&parseTime=True&loc=Local&timeout=10s")
-  -whole                                                                                                                                          
-        generate whole file (default false)
+git clone https://github.com/jayecc/mysql2md.git
+cd mysql2md
+go build -o mysql2md
 ```
 
-## Example
+## 使用方法
 
-- Build file contains DDL and define the output directory
+### 基本语法
 
 ```bash
-mysql2md -dsn 'root:password@tcp(localhost:3306)/test?charset=utf8mb4&parseTime=True&loc=Local&timeout=10s' -whole -ddl -dir=.
+mysql2md [选项]
 ```
 
-- Build file contains DDL
+### 命令行选项
 
-```bash
-mysql2md -dsn 'root:password@tcp(localhost:3306)/test?charset=utf8mb4&parseTime=True&loc=Local&timeout=10s' -whole -ddl
+| 选项 | 类型 | 默认值 | 描述 |
+|------|------|--------|------|
+| `-dsn` | string | `"username:password@tcp(localhost:3306)/database?charset=utf8mb4&parseTime=True&loc=Local&timeout=10s"` | 数据库连接字符串 |
+| `-dir` | string | `"./output"` | 文档输出目录 |
+| `-whole` | bool | `false` | 是否生成单个文件（true: 单个文件，false: 多个文件） |
+| `-ddl` | bool | `false` | 是否包含表的 DDL 语句 |
+
+### DSN 连接字符串格式
+
+```
+username:password@tcp(host:port)/database?charset=utf8mb4&parseTime=True&loc=Local&timeout=10s
 ```
 
-- Build multiple files with DDL
+### 使用示例
 
-```bash
-mysql2md -dsn 'root:password@tcp(localhost:3306)/test?charset=utf8mb4&parseTime=True&loc=Local&timeout=10s' -ddl
-```
+1. 生成包含 DDL 语句的单个文档文件到当前目录：
+   ```bash
+   mysql2md -dsn 'root:password@tcp(localhost:3306)/test?charset=utf8mb4&parseTime=True&loc=Local&timeout=10s' -whole -ddl -dir=.
+   ```
 
-- Build multiple files without DDL
+2. 生成包含 DDL 语句的单个文档文件：
+   ```bash
+   mysql2md -dsn 'root:password@tcp(localhost:3306)/test?charset=utf8mb4&parseTime=True&loc=Local&timeout=10s' -whole -ddl
+   ```
 
-```bash
-mysql2md -dsn 'root:password@tcp(localhost:3306)/test?charset=utf8mb4&parseTime=True&loc=Local&timeout=10s'
-```
+3. 为每个表生成单独的文件并包含 DDL 语句：
+   ```bash
+   mysql2md -dsn 'root:password@tcp(localhost:3306)/test?charset=utf8mb4&parseTime=True&loc=Local&timeout=10s' -ddl
+   ```
 
-# test tables list
+4. 为每个表生成单独的文件但不包含 DDL 语句：
+   ```bash
+   mysql2md -dsn 'root:password@tcp(localhost:3306)/test?charset=utf8mb4&parseTime=True&loc=Local&timeout=10s'
+   ```
 
-| Name                     | Engine | Create_time               | Collation          | Comment |
-|--------------------------|--------|---------------------------|--------------------|---------|
-| [member](test.member.md) | InnoDB | 2023-11-13T16:16:52+08:00 | utf8mb4_general_ci | `账户信息`  |
+## 输出格式
 
-# test.member
+工具会生成以下信息：
 
-> 账户信息
+### 表信息清单文件
+默认生成一个表清单文件，包含数据库中所有表的基本信息：
 
-### COLUMNS
+- 表名（带链接）
+- 存储引擎
+- 创建时间
+- 字符集校对规则
+- 表注释
 
-| COLUMN_NAME | COLUMN_DEFAULT | IS_NULLABLE | COLLATION_NAME     | COLUMN_TYPE      | COLUMN_KEY | EXTRA          | COLUMN_COMMENT |
-|-------------|----------------|-------------|--------------------|------------------|------------|----------------|----------------|
-| id          |                | NO          |                    | int(10) unsigned | PRI        | auto_increment | ``             |
-| nickname    |                | NO          | utf8mb4_general_ci | varchar(30)      | MUL        |                | `昵称`           |
+### 表详细信息文件
+为每个表生成详细信息文档，包含：
 
-### DDL
+#### 字段信息
+- 字段名
+- 默认值
+- 是否可为空
+- 字符集校对规则
+- 字段类型
+- 键类型（主键、索引等）
+- 额外信息（自增等）
+- 字段注释
 
-```sql
-CREATE TABLE `member` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `nickname` varchar(30) NOT NULL COMMENT '昵称',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='账户信息'
-```
+#### DDL 语句（可选）
+当使用 `-ddl` 参数时，还会包含表的完整创建语句。
 
-## License
+## 许可证
 
-[MIT](LICENSE)
+本项目采用 MIT 许可证，详见 [LICENSE](LICENSE) 文件。
