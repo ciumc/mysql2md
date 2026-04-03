@@ -1,31 +1,32 @@
 # MySQL to Markdown 文档生成工具
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/jayecc/mysql2md)](https://goreportcard.com/report/github.com/jayecc/mysql2md)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ciumc/mysql2md)](https://goreportcard.com/report/github.com/ciumc/mysql2md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 mysql2md 是一个简单易用的命令行工具，可以将 MySQL 数据库表结构导出为 Markdown 格式的文档，便于查看和分享数据库设计。
 
 ## 功能特性
 
-- 🔄 将 MySQL 数据库表结构转换为 Markdown 格式
-- 📄 支持生成单个文件或多个文件
-- 🔧 可选择是否包含表的 DDL 语句
-- 📁 支持自定义输出目录
-- ⚡ 支持并发处理提高效率
-- 📊 显示表的基本信息、字段详情
+- 将 MySQL 数据库表结构转换为 Markdown 格式
+- 支持生成单个文件或多个文件
+- 可选择是否包含表的 DDL 语句
+- 支持自定义输出目录
+- 并发查询提高效率，顺序写入保证输出一致性
+- 自动转义 Markdown 特殊字符，避免表格渲染异常
+- 显示表的基本信息、字段详情
 
 ## 安装
 
-### 使用 Go 安装（推荐）
+### 使用 Go 安装
 
 ```bash
-go install github.com/jayecc/mysql2md@latest
+go install github.com/ciumc/mysql2md@latest
 ```
 
 ### 从源码构建
 
 ```bash
-git clone https://github.com/jayecc/mysql2md.git
+git clone https://github.com/ciumc/mysql2md.git
 cd mysql2md
 go build -o mysql2md
 ```
@@ -103,6 +104,44 @@ username:password@tcp(host:port)/database?charset=utf8mb4&parseTime=True&loc=Loc
 
 #### DDL 语句（可选）
 当使用 `-ddl` 参数时，还会包含表的完整创建语句。
+
+## 项目架构
+
+```
+mysql2md/
+├── main.go              # CLI 入口：flag 解析、编排
+├── db.go                # 数据库连接 + 查询（SchemaQuerier 接口实现）
+├── models.go            # 数据模型 + SchemaQuerier 接口定义
+├── render.go            # Markdown 渲染（纯函数，无 I/O）
+├── writer.go            # 文件写入编排（并发查询 + 顺序写入）
+├── render_test.go       # 渲染测试
+├── writer_test.go       # 写入测试
+├── testhelper_test.go   # SQLite 内存数据库测试辅助
+├── db_test.go           # 数据库层测试
+├── main_test.go         # 入口逻辑测试
+├── go.mod
+└── go.sum
+```
+
+### 核心设计
+
+- **SchemaQuerier 接口** — 解耦数据库访问与 Markdown 生成，便于测试和扩展
+- **并发查询 + 顺序写入** — 利用 errgroup 并发查询数据库，结果按索引存入 slice 后顺序写入文件，兼顾性能与输出一致性
+- **纯函数渲染** — render.go 中的函数仅接受结构体、返回字符串，无副作用
+
+## 开发
+
+### 运行测试
+
+```bash
+go test -race ./...
+```
+
+### 查看测试覆盖率
+
+```bash
+go test -race -cover ./...
+```
 
 ## 许可证
 
