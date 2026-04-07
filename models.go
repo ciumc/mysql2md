@@ -26,24 +26,24 @@ type TableDDL struct {
 // TableColumn represents a column's metadata from information_schema.columns.
 type TableColumn struct {
 	TableCatalog           string `gorm:"column:TABLE_CATALOG"`
-	TableSchema            string `gorm:"column:TABLE_SCHEMA"`
-	TableName              string `gorm:"column:TABLE_NAME"`
-	ColumnName             string `gorm:"column:COLUMN_NAME"`
-	OrdinalPosition        int    `gorm:"column:ORDINAL_POSITION"`
-	ColumnDefault          string `gorm:"column:COLUMN_DEFAULT"`
-	IsNullable             string `gorm:"column:IS_NULLABLE"`
-	DataType               string `gorm:"column:DATA_TYPE"`
-	CharacterMaximumLength int    `gorm:"column:CHARACTER_MAXIMUM_LENGTH"`
-	CharacterOctetLength   int    `gorm:"column:CHARACTER_OCTET_LENGTH"`
-	NumericPrecision       int    `gorm:"column:NUMERIC_PRECISION"`
-	NumericScale           int    `gorm:"column:NUMERIC_SCALE"`
-	DatetimePrecision      int    `gorm:"column:DATETIME_PRECISION"`
+	TableSchema            string `gorm:"column:TABLE_SCHEMA"`              // Database name
+	TableName              string `gorm:"column:TABLE_NAME"`                // Table name
+	ColumnName             string `gorm:"column:COLUMN_NAME"`               // Column name
+	OrdinalPosition        int    `gorm:"column:ORDINAL_POSITION"`           // Column position in table
+	ColumnDefault          string `gorm:"column:COLUMN_DEFAULT"`             // Default value
+	IsNullable             string `gorm:"column:IS_NULLABLE"`                // YES or NO
+	DataType               string `gorm:"column:DATA_TYPE"`                  // Data type name
+	CharacterMaximumLength int    `gorm:"column:CHARACTER_MAXIMUM_LENGTH"`   // Max length for string types
+	CharacterOctetLength   int    `gorm:"column:CHARACTER_OCTET_LENGTH"`     // Max length in bytes
+	NumericPrecision       int    `gorm:"column:NUMERIC_PRECISION"`          // Precision for numeric types
+	NumericScale           int    `gorm:"column:NUMERIC_SCALE"`              // Scale for numeric types
+	DatetimePrecision      int    `gorm:"column:DATETIME_PRECISION"`        // Precision for datetime types
 	CharacterSetName       string `gorm:"column:CHARACTER_SET_NAME"`
-	CollationName          string `gorm:"column:COLLATION_NAME"`
-	ColumnType             string `gorm:"column:COLUMN_TYPE"`
-	ColumnKey              string `gorm:"column:COLUMN_KEY"`
-	Extra                  string `gorm:"column:EXTRA"`
-	Privileges             string `gorm:"column:PRIVILEGES"`
-	ColumnComment          string `gorm:"column:COLUMN_COMMENT"`
-	GenerationExpression   string `gorm:"column:GENERATION_EXPRESSION"`
+	CollationName          string `gorm:"column:COLLATION_NAME"`            // Collation name
+	ColumnType             string `gorm:"column:COLUMN_TYPE"`                // Full column type definition
+	ColumnKey              string `gorm:"column:COLUMN_KEY"`                 // Key type: PRI, UNI, MUL
+	Extra                  string `gorm:"column:EXTRA"`                     // Additional info like auto_increment
+	Privileges             string `gorm:"column:PRIVILEGES"`                 // Column privileges
+	ColumnComment          string `gorm:"column:COLUMN_COMMENT"`             // Column comment
+	GenerationExpression   string `gorm:"column:GENERATION_EXPRESSION"`      // Expression for generated columns
 }

@@ -39,7 +39,7 @@ func TestRenderTableIndex(t *testing.T) {
 	result := RenderTableIndex("mydb", tables)
 
 	// Check header
-	if !strings.Contains(result, "# mydb tables list \n") {
+	if !strings.Contains(result, "# mydb tables list\n") {
 		t.Error("missing header")
 	}
 
@@ -65,7 +65,7 @@ func TestRenderTableIndex(t *testing.T) {
 func TestRenderTableIndexEmpty(t *testing.T) {
 	result := RenderTableIndex("mydb", []Table{})
 
-	if !strings.Contains(result, "# mydb tables list \n") {
+	if !strings.Contains(result, "# mydb tables list\n") {
 		t.Error("missing header for empty table list")
 	}
 

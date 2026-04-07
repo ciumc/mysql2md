@@ -13,6 +13,7 @@ var (
 	isDDL   = flag.Bool("ddl", false, "generate ddl info (default false)")
 )
 
+// run is the main entry point that parses flags and executes the schema documentation generation.
 func run() error {
 	flag.Parse()
 
@@ -29,6 +30,9 @@ func run() error {
 	return execute(querier, *dir, *isWhole, *isDDL)
 }
 
+// execute orchestrates the schema documentation generation process.
+// It creates the output directory, queries the database metadata, and writes markdown files.
+// When whole is true, a single file is generated; otherwise, separate files per table plus an index.
 func execute(querier SchemaQuerier, outputDir string, whole, includeDDL bool) error {
 	if err := os.MkdirAll(outputDir, 0755); err != nil {
 		return fmt.Errorf("creating output directory %s: %w", outputDir, err)

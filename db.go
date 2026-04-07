@@ -39,6 +39,7 @@ func (q *GormQuerier) Close() error {
 	return sqlDB.Close()
 }
 
+// DatabaseName returns the name of the currently connected database.
 func (q *GormQuerier) DatabaseName() (string, error) {
 	var name string
 	err := q.db.Raw("SELECT DATABASE()").Scan(&name).Error
@@ -48,6 +49,7 @@ func (q *GormQuerier) DatabaseName() (string, error) {
 	return name, nil
 }
 
+// TableList returns metadata for all tables in the current database.
 func (q *GormQuerier) TableList() ([]Table, error) {
 	var tables []Table
 	err := q.db.Raw("SHOW TABLE STATUS").Scan(&tables).Error
@@ -57,6 +59,7 @@ func (q *GormQuerier) TableList() ([]Table, error) {
 	return tables, nil
 }
 
+// TableColumns returns column metadata for a specific table.
 func (q *GormQuerier) TableColumns(dbName, tableName string) ([]TableColumn, error) {
 	var columns []TableColumn
 	err := q.db.Raw(
@@ -69,6 +72,10 @@ func (q *GormQuerier) TableColumns(dbName, tableName string) ([]TableColumn, err
 	return columns, nil
 }
 
+// TableDDL retrieves the CREATE TABLE statement for a given table.
+// NOTE: We must use string concatenation here instead of parameterized queries
+// because MySQL's "SHOW CREATE TABLE" statement does not support placeholders.
+// The table name is escaped via escapeIdentifier() to prevent SQL injection.
 func (q *GormQuerier) TableDDL(tableName string) (*TableDDL, error) {
 	ddl := &TableDDL{}
 	err := q.db.Raw(fmt.Sprintf("SHOW CREATE TABLE %s", escapeIdentifier(tableName))).Scan(ddl).Error
